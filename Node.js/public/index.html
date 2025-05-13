@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LED Steuerung</title>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <h1>LED Steuerung</h1>
+  <button onclick="sendCommand('on')">Einschalten</button>
+  <button onclick="sendCommand('off')">Ausschalten</button>
+  <input type="number" id="blinkRate" placeholder="Blinkrate (ms)">
+  <button onclick="sendBlinkRate()">Blinken</button>
+
+  <script>
+    const socket = io();
+
+    function sendCommand(cmd) {
+      socket.emit("led", cmd);
+    }
+
+    function sendBlinkRate() {
+      const rate = document.getElementById("blinkRate").value;
+      if (rate) {
+        socket.emit("led", rate);
+      }
+    }
+  </script>
+</body>
+</html>
