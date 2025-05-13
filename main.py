@@ -4,7 +4,7 @@ import time
 
 # === Configuration ===
 LED_PIN = 17
-BROKER = "mqtt://mqtt-dashboard.com"
+BROKER = "mqtt-dashboard.com"
 LED_TOPIC = "tfobz/5ic/gruppe2/led"
 
 # === GPIO Setup ===
