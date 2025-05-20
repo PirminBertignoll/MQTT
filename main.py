@@ -24,9 +24,7 @@ bus = smbus.SMBus(I2C_BUS)
 
 def read_temperature():
     try:
-        data = bus.read_byte(TEMP_SENSOR_ADDR)
-        raw_temp = data[0] | data[1]
-        temp_c = raw_temp
+        temp_c = bus.read_byte(TEMP_SENSOR_ADDR)
         return temp_c
     except Exception as e:
         print(f"Fehler beim Auslesen des Temperatursensors: {e}")
