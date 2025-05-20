@@ -17,17 +17,16 @@ GPIO.setup(LED_PIN, GPIO.OUT)
 blink_interval = None
 blink_thread = None
 
-I2C_BUS = 2
-TEMP_SENSOR_ADDR = 0x3a  # Passe ggf. die Adresse an
+I2C_BUS = 1
+TEMP_SENSOR_ADDR = 0x48
 
 bus = smbus.SMBus(I2C_BUS)
 
 def read_temperature():
-    # Beispiel: 2 Bytes lesen, Wert anpassen je nach Sensor
     try:
-        data = bus.read_i2c_block_data(TEMP_SENSOR_ADDR, 0, 2)
-        raw_temp = (data[0] << 8) | data[1]
-        temp_c = raw_temp / 100.0  # Umrechnung je nach Sensor anpassen
+        data = bus.read_byte(TEMP_SENSOR_ADDR)
+        raw_temp = data[0] | data[1]
+        temp_c = raw_temp
         return temp_c
     except Exception as e:
         print(f"Fehler beim Auslesen des Temperatursensors: {e}")
@@ -38,7 +37,7 @@ def temp_publisher(client):
         temp = read_temperature()
         if temp is not None:
             client.publish(TEMP_TOPIC, f"{temp:.2f}")
-        time.sleep(60)
+        time.sleep(5)
 
 # === MQTT Callbacks ===
 def on_connect(client, userdata, flags, rc):
