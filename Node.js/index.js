@@ -30,11 +30,15 @@ app.get('/', (req, res) => {
   `);
 });
 
-const mqttClient = mqtt.connect('mqtt-dashboard.com:8884');
+const mqttClient = mqtt.connect('wss://mqtt-dashboard.com:8884/mqtt', {
+  protocol: 'wss',
+  rejectUnauthorized: false
+});
+
 
 mqttClient.on('connect', () => {
   console.log('Connected to MQTT broker');
-  mqttClient.subscribe('/tfobz/5ic/gruppe2/temp');
+  mqttClient.subscribe('tfobz/5ic/gruppe2/temp');
 });
 
 mqttClient.on('message', (topic, message) => {
