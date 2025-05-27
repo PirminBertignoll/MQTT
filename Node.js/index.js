@@ -1,41 +1,47 @@
-const express = require("express");
-const http = require("http");
-const mqtt = require("mqtt");
-const socketIo = require("socket.io");
-
+const express = require('express');
+const http = require('http');
+const mqtt = require('mqtt');
+const socketIo = require('socket.io');
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-// === Konfiguration ===
-const LED_TOPIC = "tfobz/5ic/gruppe2/led";
-const MQTT_BROKER = "mqtt://mqtt-dashboard.com";
-
-// === MQTT Setup ===
-const mqttClient = mqtt.connect(MQTT_BROKER);
-
-mqttClient.on("connect", () => {
-  console.log("Verbunden mit dem MQTT-Broker");
+app.get('/', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>MQTT Web Client</title>
+    </head>
+    <body>
+      <h1>MQTT Values</h1>
+      <ul id="messages"></ul>
+      <script src="/socket.io/socket.io.js"></script>
+      <script>
+        const socket = io();
+        socket.on('mqtt_message', function(data) {
+          const li = document.createElement('li');
+          li.textContent = 'Topic: ' + data.topic + ', Message: ' + data.message;
+          document.getElementById('messages').appendChild(li);
+        });
+      </script>
+    </body>
+    </html>
+  `);
 });
 
-mqttClient.on("error", (err) => {
-  console.error("MQTT-Fehler:", err);
+const mqttClient = mqtt.connect('mqtt-dashboard.com:8884');
+
+mqttClient.on('connect', () => {
+  console.log('Connected to MQTT broker');
+  mqttClient.subscribe('/tfobz/5ic/gruppe2/temp');
 });
 
-// === Webserver ===
-app.use(express.static("public"));
-
-io.on("connection", (socket) => {
-  console.log("Webclient verbunden");
-
-  // Empfange LED-Befehle vom Webclient
-  socket.on("led", (cmd) => {
-    console.log(`Empfangener LED-Befehl: ${cmd}`);
-    mqttClient.publish(LED_TOPIC, cmd); // Sende den Befehl über MQTT
-  });
+mqttClient.on('message', (topic, message) => {
+  console.log(`Received message on topic ${topic}: ${message.toString()}`);
+  io.emit('mqtt_message', { topic, message: message.toString() });
 });
 
-// Starte den Webserver
 server.listen(3000, () => {
-  console.log("Webserver läuft auf http://localhost:3000");
+  console.log('Server running on http://localhost:3000');
 });
