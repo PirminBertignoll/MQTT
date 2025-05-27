@@ -47,8 +47,13 @@ const mqttClient = mqtt.connect("wss://mqtt-dashboard.com:8884/mqtt", {
 });
 
 mqttClient.on("connect", () => {
-  console.log("Connected to MQTT broker");
+  console.log("Connected to MQTT broker Temp");
   mqttClient.subscribe("tfobz/5ic/gruppe2/temp");
+});
+
+mqttClient.on("connect", () => {
+  console.log("Connected to MQTT broker Led");
+  mqttClient.subscribe("tfobz/5ic/gruppe2/led");
 });
 
 mqttClient.on("message", (topic, message) => {
@@ -56,12 +61,9 @@ mqttClient.on("message", (topic, message) => {
   io.emit("mqtt_message", { topic, message: message.toString() });
 });
 
-mqttClient.on("connect", () => {
-  mqttClient.subscribe("tfobz/5ic/gruppe2/led", (socket) => {
-    socket.on("led_control", (command) => {
-      // command: z.B. "on", "off", "500" (für Blinken)
-      mqttClient.publish('tfobz/5ic/gruppe2/led/', command);
-    });
+io.on("connection", (socket) => {
+  socket.on("led_control", (command) => {
+    mqttClient.publish("tfobz/5ic/gruppe2/led", command.toString());
   });
 });
 
