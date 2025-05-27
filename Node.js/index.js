@@ -15,17 +15,18 @@ app.get("/", (req, res) => {
     </head>
     <body>
       <h1>MQTT Values</h1>
-      <ul id="messages"></ul>
       <input id="blinkMs" type="number" placeholder="Blink duration in ms" />
       <button onclick="ledOn()">LED Ein</button>
       <button onclick="ledOff()">LED Aus</button>
       <button onclick="ledBlink()">LED Blinken</button>
+      <ul id="messages"></ul>
       <script src="/socket.io/socket.io.js"></script>
       <script>
         const socket = io();
         socket.on('mqtt_message', function(data) {
           const li = document.createElement('li');
           li.textContent = 'Topic: ' + data.topic + ', Message: ' + data.message;
+          document.getElementById('messages').appendChild(li);
           document.getElementById('messages').appendChild(li);
         });
         
